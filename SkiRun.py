@@ -28,20 +28,29 @@ ski_lodge = {
         "emoji": "🏠",
         "x": 45,
         "y": 109,
-        "direction": "up",
+        "direction": "left",
         "can_be_mentioned": True,
     }
 }
 
 lodge_message = {
     "open": {
-        "message": "You can ask @**RC Lodge** (politely) for a lift ticket."
+        "bot_id": lodge_id,
+        "note": {
+            "note_text": "You can ask @**RC Lodge** (politely) for a lift ticket."
+        }
     },
     "ski": {
-        "message": "The powder is great today!"
+        "bot_id": lodge_id,
+        "note": {
+        "note_text": "The powder is great today!"
+        }
     },
     "close": {
-        "message": "The lodge is currently closed. You can ask @**Rebecca Holley** to run this bot. :)"
+        "bot_id": lodge_id,
+        "note": {
+            "note_text": "The lodge is currently closed. You can ask @**Rebecca Holley** to run this bot. :)"
+        }
     }
 }
 
@@ -73,15 +82,16 @@ def init_lodge():
     r = requests.post(url=f"https://recurse.rctogether.com/api/bots?app_id={ID}&app_secret={SEC}", json=ski_lodge)
     if r.status_code == 200:
         print("Finished building RC Lodge.")
-        lodge_id = get_bot("RC Lodge", "id")
-        m = set_lodge('open', lodge_id)
+        l_id = get_bot("RC Lodge", "id")
+        # m = set_lodge('open', l_id)
         # if m.status_code == 200:
         #     print("RC Lodge is ready for the season!")
-        return lodge_id
+    r = requests.post(url=f"https://recurse.rctogether.com/api/notes?app_id={ID}&app_secret={SEC}", json = lodge_message['open'])
+    return l_id
 
 
-def set_lodge(tag: str, bot_id: int):
-    m = requests.patch(url=f"https://recurse.rctogether.com/api/bots/{bot_id}?app_id={ID}&app_secret={SEC}",
+def set_lodge(tag: str, n_id: int):
+    m = requests.patch(url=f"https://recurse.rctogether.com/api/notes/{n_id}?app_id={ID}&app_secret={SEC}",
                        json=lodge_message[tag])
     return m
 
@@ -100,8 +110,7 @@ def close_lodge():
 
 
 def init_skier(skier: str):
-    m = requests.patch(url=f"https://recurse.rctogether.com/api/bots/{lodge_id}?app_id={ID}&app_secret={SEC}",
-                       json=lodge_message['ski'])
+    set_lodge('ski', lodge_id)
     chairlift = all_skiers[skier]
     r = requests.post(url=f'https://recurse.rctogether.com/api/bots?app_id={ID}&app_secret={SEC}', json=chairlift)
     if r.status_code == 200:
@@ -141,6 +150,12 @@ def get_bot(bot_name: str, field: str=None):
         bot = False
     return bot
 
+def get_note(world_mess):
+    notes = list(filter(lambda x: x['type'] == 'Notes' and 'updated_by' in x.keys(), world_mess['payload']['entities']))
+    n_id = list(filter(lambda x: x['updated_by']['id'] == lodge_id, notes))[0]['id']
+    return n_id
+
+
 
 ticket = re.compile("ticket", flags=re.IGNORECASE)
 please = re.compile("please", flags=re.IGNORECASE)
@@ -169,19 +184,22 @@ lodge_id = None
 def sub_on_receive(message):
 
     if message['type'] == "world":
-        global lodge_id
+
         print("New message of type \"world\"")
         bots = list(filter(lambda x: x['type'] == 'Bot', message['payload']['entities']))
         exist_lodge = list(filter(lambda x: x['name'] == 'RC Lodge', bots))
-        exist_skier = list(filter(lambda x: x['name'] == 'Skier1', bots))
-        if not exist_lodge:
-            print("There is currently no lodge in Virtual RC!")
-            lodge_id = init_lodge()
-        else:
+        if exist_lodge:
+            global lodge_id
             lodge_id = get_bot("RC Lodge", field="id")
-            # print("lodge_id set")
-        if not exist_skier:
-            print("No one wants to ski right now.")
+            global note_id
+            note_id = get_note(message)
+        else:
+            print("There is currently no lodge in Virtual RC!")
+            global lodge_id
+            lodge_id = init_lodge()
+            sub.remove()
+            sub.create()
+
 
     if message['type'] == "entity":
         mess = message['payload']['message']
@@ -197,4 +215,5 @@ def sub_on_receive(message):
 
 
 sub.on_receive(callback=sub_on_receive)
+sub.remove()
 sub.create()

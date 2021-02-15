@@ -1,5 +1,4 @@
 # VirtualSkier
-_____
 a tiny skiing-animation bot for Virtual RC
 
 ### Getting Started
