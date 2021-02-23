@@ -34,6 +34,7 @@ bot_message = {
     "message": "Hello, I am a bot run from example.py"
 }
 
+
 # successful requests return status code 200
 def init_bot():
     r = requests.post(url=f"https://recurse.rctogether.com/api/bots?app_id={ID}&app_secret={SEC}", json=bot_info)
@@ -51,7 +52,8 @@ def get_bot():
 
 def update_bot():
     b_id = get_bot()
-    r = requests.patch(url=f"https://recurse.rctogether.com/api/bots/{b_id}?app_id={ID}&app_secret={SEC}", json=bot_message)
+    r = requests.patch(url=f"https://recurse.rctogether.com/api/bots/{b_id}?app_id={ID}&app_secret={SEC}",
+                       json=bot_message)
     print(f"update_bot status: {r.status_code}")
 
 
@@ -68,7 +70,7 @@ def sub_on_receive(message):
     # that send HTTP requests to https://recurse.rctogether.com/api based on the message input
 
     # the first message you receive will be 'world', which is the status for EVERYTHING in VirtualRC
-    # don't print it, it's huge
+    # don't print it; it's huge
     if message['type'] == "world":
         init_bot()
         time.sleep(3)
@@ -77,6 +79,7 @@ def sub_on_receive(message):
         update_bot()
         time.sleep(30)
         delete_bot()
+
 
 sub.on_receive(callback=sub_on_receive)
 

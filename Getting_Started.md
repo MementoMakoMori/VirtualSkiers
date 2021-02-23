@@ -48,7 +48,7 @@ r = requests.post(url=f"https://recurse.rctogether.com/api/bots?app_id={ID}&app_
 # get info for all your bots - very useful for grabbing their ids!
 r = requests.get(url=f"https://recurse.rctogether.com/api/bots?app_id={ID}&app_secret={SEC}")
 
-# control your bot - like make it move, create things, post messages, etc
+# control your bot - like make it move, create things, etc
 r = requests.patch(url=f"https://recurse.rctogether.com/api/bots/{bot_id}?app_id={ID}&app_secret={SEC}", json=your_new_bot_info)
 
 # delete your bot :(
