@@ -19,7 +19,7 @@ class Skier:
         self.message = None
         self.pos = {
             "x": x,
-            "y": xy
+            "y": y
         }
         self.app_id = app_id
         self.app_sec = app_sec

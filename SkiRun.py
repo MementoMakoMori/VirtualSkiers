@@ -7,9 +7,9 @@ import pytz as pz
 from skilodge import SkiLodge
 
 """
-R. Holley 2021/02/22
+R. Holley 2021/02/23
 There are many print() functions throughout these files that I have commented out, but that were very useful to me 
-when testing. I've left some of them in for others to uncomment as desired.
+when testing. I've left some of them in for others to comment/uncomment as desired.
 
 The credentials file is not included as it is specific to my RC account.
 To run this code for yourself, you will need to register an app at recurse.rctogether.com/apps
@@ -76,12 +76,12 @@ def sub_on_receive(message):
 
 
 if __name__ == "__main__":
-    # import os
-    # ID = os.getenv('ID')
-    # SEC = os.getenv('SEC')
-    import keyring
-    ID = keyring.get_password('summon', 'VIRTUAL_APP_ID')
-    SEC = keyring.get_password('summon', 'VIRTUAL_APP_SEC')
+    import os
+    ID = os.getenv('ID')
+    SEC = os.getenv('SEC')
+    # import keyring
+    # ID = keyring.get_password('summon', 'VIRTUAL_APP_ID')
+    # SEC = keyring.get_password('summon', 'VIRTUAL_APP_SEC')
     lodge = SkiLodge(app_id=ID, app_sec=SEC, name="RC Lodge")
     con = Connection(origin='https://recurse.rctogether.com',
                      url=f'wss://recurse.rctogether.com/cable?app_id={ID}&app_secret={SEC}')
@@ -94,4 +94,4 @@ if __name__ == "__main__":
 
     time.sleep(10)
     while con.connected:
-        time.sleep(1)
+        time.sleep(5)

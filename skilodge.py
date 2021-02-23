@@ -38,7 +38,7 @@ class SkiLodge:
         else:
             from SkiRun import get_bot
             self.id = get_bot(self.name, 'id', app_id=self.app_id, app_sec=self.app_sec)
-            print(self.id)
+            # print(self.id)
             self.make_notes()
             self.new_note()
 
@@ -46,9 +46,9 @@ class SkiLodge:
         self.make_notes()
         sign = requests.post(url=f"https://recurse.rctogether.com/api/notes?app_id={self.app_id}&app_secret={self.app_sec}",
                              json=self.notes['open'])
-        print(sign.status_code)
-        print(sign.text)
-        print("Lodge sign: {}".format(sign.status_code))
+        # print(sign.status_code)
+        # print(sign.text)
+        print(f"Lodge sign: {sign.status_code}")
 
     def make_notes(self):
         self.notes = {
@@ -69,7 +69,7 @@ class SkiLodge:
         self.messages = {
             "no": {
                 "bot_id": self.id,
-                "message[text]": "What kind of manners is that? These tickets are free, you know!"
+                "message['text']": "What kind of manners is that? These tickets are free, you know!"
             },
             "yes": {
                 "bot_id": self.id,
@@ -80,13 +80,13 @@ class SkiLodge:
                 "message['text']": "There's a line forming - do you want a ticket or not?"
             }
         }
-        print("notes + messages created.")
+        # print("notes + messages created.")
 
     def set_note(self, tag):
         post = requests.patch(
             url=f"https://recurse.rctogether.com/api/notes/{self.note_id}?app_id={self.app_id}&app_secret={self.app_sec}",
             json=self.notes[tag])
-        print(f"lodge note: {post.status_code}")
+        print(f"Lodge sign: {post.status_code}")
 
     def ask_lodge(self, text):
         if self._summertime(text):
@@ -95,33 +95,32 @@ class SkiLodge:
             self._close_lodge()
             dn = requests.delete(
                 url=f"https://recurse.rctogether.com/api/notes/{self.note_id}?bot_id={self.id}&app_id={self.app_id}&app_secret={self.app_sec}")
-            print(dn.status_code)
+            # print(dn.status_code)
             dl = requests.delete(
                 url=f"https://recurse.rctogether.com/api/bots/{self.id}?app_id={self.app_id}&app_secret={self.app_sec}")
             return print(dl.status_code)
         nice = self._ticket_please(text)
         if nice == 2:
             self._sell_ticket()
-
         elif nice == 1:
             message = requests.post(
                 url=f"https://recurse.rctogether.com/api/messages?app_id={self.app_id}&app_secret={self.app_sec}",
                 json=self.messages['no'])
-            print(f"message no: {message.status_code}")
+            # print(f"message no: {message.status_code}")
         else:
             message = requests.post(
                 url=f"https://recurse.rctogether.com/api/messages?app_id={self.app_id}&app_secret={self.app_sec}",
                 json=self.messages['what'])
-            print(f"message what: {message.status_code}")
+            # print(f"message what: {message.status_code}")
 
     def _sell_ticket(self):
         message = requests.post(
             url=f"https://recurse.rctogether.com/api/messages?app_id={self.app_id}&app_secret={self.app_sec}",
             json=self.messages['yes'])
-        print(f"message yes: {message.status_code}")
+        # print(f"message yes: {message.status_code}")
         self.skiers['Skier1'] = Skier(app_id=self.app_id, app_sec=self.app_sec, name="Skier1")
         self.skiers['Skier1'].make_message()
-        print(f"skier id: {self.skiers['Skier1'].id}")
+        # print(f"skier id: {self.skiers['Skier1'].id}")
         self.skiers['Skier1'].chairlift()
 
     def _close_lodge(self):
