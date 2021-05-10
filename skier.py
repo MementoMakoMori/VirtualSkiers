@@ -27,10 +27,11 @@ class Skier:
     def make_message(self):
         from SkiRun import get_bot
         self.id = get_bot(self.name, 'id', self.app_id, self.app_sec)
+        # print(self.id)
         if self.id:
             self.message = {
                 "bot_id": self.id,
-                "message": "The powder is great today!"
+                "text": "The powder is great today!"
             }
         else:
             print(f"Error: {self.name}.id is None. Run get_bot to set it!")
@@ -38,7 +39,11 @@ class Skier:
     def chairlift(self):
         ride = requests.post(url=f"https://recurse.rctogether.com/api/bots?app_id={self.app_id}&app_secret={self.app_sec}",
                              json=self.init_json)
-        print(f"lift status: {ride}")
+        # print(f"lift status: {ride.status_code}")
+        if self.id is None:
+            self.make_message()
+        yay = requests.post(url=f"https://recurse.rctogether.com/api/messages?app_id={self.app_id}&app_secret={self.app_sec}", json=self.message)
+        # print(f"having fun? {yay.status_code}")
         runs = 0
         while runs < 5:
             self.ski_down()
@@ -60,4 +65,4 @@ class Skier:
     def _wipeout(self):
         d = requests.delete(
             url=f"https://recurse.rctogether.com/api/bots/{self.id}?app_id={self.app_id}&app_secret={self.app_sec}")
-        print(f"delete skier status: {d.status_code}")
+        # print(f"delete skier status: {d.status_code}")

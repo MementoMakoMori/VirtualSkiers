@@ -3,7 +3,6 @@ from actioncable.subscription import Subscription
 import requests
 import time
 import datetime as dt
-import pytz as pz
 from skilodge import SkiLodge
 
 """
@@ -60,17 +59,24 @@ def sub_on_receive(message):
             lodge.id = get_bot(lodge.name, 'id')
             lodge.make_notes()
             lodge.note_id = get_note(message['payload']['entities'])
+            lodge.set_note('open')
         else:
             print("There is currently no lodge in Virtual RC!")
             lodge.new_lodge()
             # print(["init completed, ", lodge.id])
 
     if message['type'] == "entity":
-        now = pz.timezone('EST').localize(dt.datetime.now())
+        # print("New message of type \"entity\"")
+        now = dt.datetime.now(dt.timezone.utc)
         mess = message['payload']['message']
-        if lodge.id in mess['mentioned_agent_ids']:
-            stamp = pz.timezone('UTC').localize(dt.datetime.strptime(mess['sent_at'], "%Y-%m-%dT%H:%M:%SZ"))
+        if lodge.id in mess['mentioned_entity_ids']:
+            # print("lodge mentioned")
+            stamp = mess['sent_at'] + '+0000'
+            stamp = dt.datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ%z")
+            # print(now)
+            # print(stamp)
             dif = (now - stamp).total_seconds()
+            # print(dif)
             if dif < 2:
                 lodge.ask_lodge(mess['text'])
 
@@ -92,6 +98,9 @@ if __name__ == "__main__":
     sub.on_receive(callback=sub_on_receive)
     sub.create()
 
-    time.sleep(10)
+    time.sleep(5)
     while con.connected:
-        time.sleep(5)
+        if lodge.status == 'closed':
+            con.disconnect()
+        else:
+            time.sleep(5)

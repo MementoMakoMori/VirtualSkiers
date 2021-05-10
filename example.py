@@ -31,7 +31,7 @@ bot_info = {
 }
 
 bot_message = {
-    "message": "Hello, I am a bot run from example.py"
+    "text": "Hello, I am a bot run from example.py"
 }
 
 
@@ -52,7 +52,7 @@ def get_bot():
 
 def update_bot():
     b_id = get_bot()
-    r = requests.patch(url=f"https://recurse.rctogether.com/api/bots/{b_id}?app_id={ID}&app_secret={SEC}",
+    r = requests.patch(url=f"https://recurse.rctogether.com/api/messages?app_id={ID}&app_secret={SEC}&bot_id={b_id}",
                        json=bot_message)
     print(f"update_bot status: {r.status_code}")
 
