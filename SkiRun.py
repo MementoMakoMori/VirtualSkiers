@@ -99,8 +99,9 @@ if __name__ == "__main__":
     sub.create()
 
     time.sleep(5)
-    while con.connected:
+    while True:
         if lodge.status == 'closed':
             con.disconnect()
         else:
             time.sleep(5)
+

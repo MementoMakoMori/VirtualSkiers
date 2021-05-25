@@ -62,7 +62,7 @@ class SkiLodge:
                                 PM @**Rebecca Holley on Zulip if it isn't working."
                 }
             },
-            "close": {
+            "closed": {
                 "bot_id": self.id,
                 "note": {
                     "note_text": "The lodge is currently closed. You can ask @**Rebecca Holley** to run this bot. :)"
@@ -89,12 +89,14 @@ class SkiLodge:
         post = requests.patch(
             url=f"https://recurse.rctogether.com/api/notes/{self.note_id}?app_id={self.app_id}&app_secret={self.app_sec}",
             json=self.notes[tag])
+        self.status = tag
         # print(f"Lodge sign: {post.status_code}")
 
     def ask_lodge(self, text):
+        nice = self._ticket_please(text)
         if self._summertime(text):
             self._close_lodge()
-        if self._bye(text):
+        elif self._bye(text):
             self._close_lodge()
             dn = requests.delete(
                 url=f"https://recurse.rctogether.com/api/notes/{self.note_id}?bot_id={self.id}&app_id={self.app_id}&app_secret={self.app_sec}")
@@ -102,8 +104,7 @@ class SkiLodge:
             dl = requests.delete(
                 url=f"https://recurse.rctogether.com/api/bots/{self.id}?app_id={self.app_id}&app_secret={self.app_sec}")
             return print(dl.status_code)
-        nice = self._ticket_please(text)
-        if nice == 2:
+        elif nice == 2:
             self._sell_ticket()
         elif nice == 1:
             message = requests.post(
@@ -130,8 +131,7 @@ class SkiLodge:
         for skier in self.skiers:
             if get_bot(self.skiers[skier].name, app_id=self.app_id, app_sec=self.app_sec):
                 self.skiers[skier]._wipeout()
-        self.set_note('close')
-        self.status = 'closed'
+        self.set_note('closed')
 
     _ticket = re.compile("ticket", flags=re.IGNORECASE)
     _please = re.compile("please", flags=re.IGNORECASE)
